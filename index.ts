@@ -486,17 +486,27 @@ export default function (pi: ExtensionAPI) {
     const payload = event.payload as Record<string, unknown>;
 
     if (Array.isArray(payload.input)) {
-      return {
-        ...payload,
-        input: compactProviderItems(payload.input, makeOpenAIResponsesContextItem(dynamicContextText)),
-      };
+      const input = compactProviderItems(
+        payload.input,
+        makeOpenAIResponsesContextItem(dynamicContextText),
+      );
+
+      // Mutate the event payload as well as returning it. Returning is the
+      // documented mechanism Pi uses for the actual provider request, but
+      // mutating makes later before_provider_request loggers/sniffers see the
+      // rewritten payload instead of the original pre-rewrite payload.
+      payload.input = input;
+      return payload;
     }
 
     if (Array.isArray(payload.messages)) {
-      return {
-        ...payload,
-        messages: compactProviderItems(payload.messages, makeChatContextItem(dynamicContextText)),
-      };
+      const messages = compactProviderItems(
+        payload.messages,
+        makeChatContextItem(dynamicContextText),
+      );
+
+      payload.messages = messages;
+      return payload;
     }
   });
 
