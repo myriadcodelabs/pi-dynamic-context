@@ -309,30 +309,16 @@ export default function (pi: ExtensionAPI) {
   };
 
   // -----------------------------------------------------------------------
-  // Model selection helpers
+  // Model helpers
   // -----------------------------------------------------------------------
 
-  const findExtractionModel = async (ctx: ExtensionContext) => {
-    const candidates = [
-      ["google", "gemini-2.5-flash"],
-      ["openai", "gpt-4.1-mini"],
-      ["anthropic", "claude-sonnet-4-5"],
-      ["deepseek", "deepseek-v4-flash"],
-    ] as const;
+  const getActiveModel = async (ctx: ExtensionContext) => {
+    if (!ctx.model) return undefined;
 
-    for (const [provider, modelId] of candidates) {
-      const m = ctx.modelRegistry.find(provider, modelId);
-      if (!m) continue;
-      const auth = await ctx.modelRegistry.getApiKeyAndHeaders(m);
-      if (auth.ok && auth.apiKey) return m;
-    }
+    const auth = await ctx.modelRegistry.getApiKeyAndHeaders(ctx.model);
+    if (!auth.ok || !auth.apiKey) return undefined;
 
-    if (ctx.model) {
-      const auth = await ctx.modelRegistry.getApiKeyAndHeaders(ctx.model);
-      if (auth.ok && auth.apiKey) return ctx.model;
-    }
-
-    return undefined;
+    return { model: ctx.model, auth };
   };
 
   // -----------------------------------------------------------------------
@@ -350,11 +336,10 @@ export default function (pi: ExtensionAPI) {
 
   const selectDomainForPrompt = async (prompt: string, ctx: ExtensionContext): Promise<string> => {
     const fallback = fallbackSelectDomain(prompt);
-    const model = await findExtractionModel(ctx);
-    if (!model) return fallback;
+    const active = await getActiveModel(ctx);
+    if (!active) return fallback;
 
-    const auth = await ctx.modelRegistry.getApiKeyAndHeaders(model);
-    if (!auth.ok || !auth.apiKey) return fallback;
+    const { model, auth } = active;
 
     const domainDescriptions = domainConfig.domains
       .map((d) => `- ${d.name}: ${d.description}`)
@@ -536,14 +521,13 @@ export default function (pi: ExtensionAPI) {
     const conversationText = buildConversationText(newEntries);
     if (conversationText.trim().length < 50) return;
 
-    const model = await findExtractionModel(ctx);
-    if (!model) {
-      ctx.ui.notify("Dynamic context: no extraction model available", "warning");
+    const active = await getActiveModel(ctx);
+    if (!active) {
+      ctx.ui.notify("Dynamic context: no active model available for extraction", "warning");
       return;
     }
 
-    const auth = await ctx.modelRegistry.getApiKeyAndHeaders(model);
-    if (!auth.ok || !auth.apiKey) return;
+    const { model, auth } = active;
 
     isExtracting = true;
     ctx.ui.setStatus("dynctx", `Extracting ${currentDomain} context...`);
