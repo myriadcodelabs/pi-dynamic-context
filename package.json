@@ -1,5 +1,5 @@
 {
-  "name": "pi-dynamic-context",
+  "name": "@myriadcodelabs/pi-dynamic-context",
   "version": "0.1.0",
   "description": "Domain-aware dynamic context extraction and injection extension for Pi.",
   "type": "module",

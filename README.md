@@ -7,7 +7,7 @@ Domain-aware dynamic context extraction and injection extension for [Pi](https:/
 ## Install
 
 ```bash
-pi install npm:pi-dynamic-context
+pi install npm:@myriadcodelabs/pi-dynamic-context
 ```
 
 Then start or reload Pi. The package manifest exposes `index.ts` as a Pi extension.
