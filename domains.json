@@ -1,0 +1,34 @@
+{
+  "domains": [
+    {
+      "name": "general",
+      "description": "General conversation without a specific domain focus. Use when no other domain fits.",
+      "extractionPrompt": "You are a context extractor for a general conversation. Review the conversation below and extract the essential information that would be needed to continue this conversation effectively later.\n\nInclude:\n1. Main topics and goals discussed\n2. Key decisions made\n3. Important facts, data points, or references\n4. Current state and progress\n5. Open questions or blockers\n6. Any planned next steps\n\nBe concise but comprehensive. The extracted context will replace prior conversation history in future provider requests while the full session remains persisted separately.\n\n<conversation>\n{conversation}\n</conversation>\n\n{previousContext}\n\nOutput ONLY the extracted context with no preamble or meta-commentary.",
+      "injectionFormat": "## Dynamic Context ({domainName})\n\nThe following is a curated summary of the conversation so far, extracted to preserve essential context while replacing prior provider-bound conversation history:\n\n{context}"
+    },
+    {
+      "name": "coding",
+      "description": "Software development tasks: writing code, debugging, refactoring, designing architecture, reviewing code. Use for programming-related work.",
+      "extractionPrompt": "You are a context extractor for a software development conversation. Review the conversation below and extract the essential technical context needed to continue development work.\n\nInclude:\n1. Project overview and tech stack\n2. Current task/goal and what was being built or fixed\n3. Key files modified, created, or examined (with paths)\n4. Important architectural decisions and their rationale\n5. Bugs encountered and their status (fixed, in progress, unresolved)\n6. Dependencies, configurations, or environment details\n7. Code patterns or conventions being followed\n8. Test results or issues\n9. Open questions and blockers\n10. Planned next steps\n\nBe concise but thorough. The extracted context will replace prior conversation history in future provider requests while the full session remains persisted separately.\n\n<conversation>\n{conversation}\n</conversation>\n\n{previousContext}\n\nOutput ONLY the extracted context with no preamble or meta-commentary.",
+      "injectionFormat": "## Dynamic Context ({domainName})\n\nThe following is a curated summary of the software development conversation so far, extracted to preserve essential context while replacing prior provider-bound conversation history:\n\n{context}"
+    },
+    {
+      "name": "research",
+      "description": "Research tasks: exploring topics, gathering information, analyzing data, literature review. Use for investigation and learning.",
+      "extractionPrompt": "You are a context extractor for a research conversation. Review the conversation below and extract the essential research context.\n\nInclude:\n1. Research questions and hypotheses\n2. Sources examined (papers, articles, docs, APIs) and key findings from each\n3. Methodology and approach\n4. Key insights, discoveries, and conclusions\n5. Data points, statistics, or evidence gathered\n6. Contradictions, uncertainties, or areas needing more investigation\n7. Relationships between different pieces of information\n8. Open questions and planned next research steps\n\nBe concise but thorough. The extracted context will replace prior conversation history in future provider requests while the full session remains persisted separately.\n\n<conversation>\n{conversation}\n</conversation>\n\n{previousContext}\n\nOutput ONLY the extracted context with no preamble or meta-commentary.",
+      "injectionFormat": "## Dynamic Context ({domainName})\n\nThe following is a curated summary of the research conversation so far, extracted to preserve essential context while replacing prior provider-bound conversation history:\n\n{context}"
+    },
+    {
+      "name": "writing",
+      "description": "Writing tasks: drafting documents, editing, proofreading, content creation, structuring text. Use for document and content work.",
+      "extractionPrompt": "You are a context extractor for a writing conversation. Review the conversation below and extract the essential writing context.\n\nInclude:\n1. Document/project being worked on and its purpose\n2. Target audience and tone/voice guidelines\n3. Current section or part being drafted/edited\n4. Key stylistic choices, terminology, and conventions\n5. Structural decisions (outline, sections, flow)\n6. Feedback received and revisions made\n7. References, sources, or citations being used\n8. Current state of the document\n9. Open questions about content, style, or structure\n10. Next writing tasks\n\nBe concise but thorough. The extracted context will replace prior conversation history in future provider requests while the full session remains persisted separately.\n\n<conversation>\n{conversation}\n</conversation>\n\n{previousContext}\n\nOutput ONLY the extracted context with no preamble or meta-commentary.",
+      "injectionFormat": "## Dynamic Context ({domainName})\n\nThe following is a curated summary of the writing conversation so far, extracted to preserve essential context while replacing prior provider-bound conversation history:\n\n{context}"
+    },
+    {
+      "name": "analysis",
+      "description": "Data analysis and planning: analyzing data, making plans, strategic thinking, problem decomposition. Use for structured thinking.",
+      "extractionPrompt": "You are a context extractor for an analysis conversation. Review the conversation below and extract the essential analytical context.\n\nInclude:\n1. Problem or question being analyzed\n2. Framework or methodology used\n3. Key assumptions and constraints\n4. Options considered with pros/cons\n5. Decisions made and their rationale\n6. Data analyzed and key findings\n7. Risks identified and mitigation strategies\n8. Dependencies and timeline considerations\n9. Open questions and uncertainties\n10. Recommended next steps\n\nBe concise but thorough. The extracted context will replace prior conversation history in future provider requests while the full session remains persisted separately.\n\n<conversation>\n{conversation}\n</conversation>\n\n{previousContext}\n\nOutput ONLY the extracted context with no preamble or meta-commentary.",
+      "injectionFormat": "## Dynamic Context ({domainName})\n\nThe following is a curated summary of the analysis conversation so far, extracted to preserve essential context while replacing prior provider-bound conversation history:\n\n{context}"
+    }
+  ]
+}
