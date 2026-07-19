@@ -308,6 +308,15 @@ export default function (pi: ExtensionAPI) {
     return "";
   };
 
+  const getLatestUserTextFromMessages = (messages: AgentMessageLike[]): string => {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const message = messages[i];
+      if (message.role !== "user") continue;
+      return extractTextParts(message.content).join("\n").trim();
+    }
+    return "";
+  };
+
   // -----------------------------------------------------------------------
   // Model helpers
   // -----------------------------------------------------------------------
@@ -432,6 +441,37 @@ export default function (pi: ExtensionAPI) {
     return domainHeader + "\n\n" + contextBlock;
   };
 
+  const ensureDomainForMessages = async (messages: AgentMessageLike[], ctx: ExtensionContext) => {
+    if (currentDomain) return;
+
+    const prompt = getLatestUserTextFromMessages(messages);
+    if (!prompt) return;
+
+    currentDomain = await selectDomainForPrompt(prompt, ctx);
+    ctx.ui.setStatus("dynctx", `Auto domain: ${currentDomain}`);
+  };
+
+  const isDynamicContextAgentMessage = (message: AgentMessageLike): boolean => {
+    const text = extractTextParts(message.content).join("\n");
+    return text.includes("## Dynamic Context Domain") && text.includes("## Dynamic Context (");
+  };
+
+  const makeAgentContextMessage = (text: string): AgentMessageLike => ({
+    role: "user",
+    content: [{ type: "text", text }],
+    timestamp: Date.now(),
+  });
+
+  const compactAgentMessages = <T extends AgentMessageLike>(messages: T[], dynamicMessage: T): T[] => {
+    const withoutOldDynamicContext = messages.filter((message) => !isDynamicContextAgentMessage(message));
+    const lastUserIndex = withoutOldDynamicContext
+      .map((message) => message.role)
+      .lastIndexOf("user");
+
+    if (lastUserIndex === -1) return [dynamicMessage];
+    return [dynamicMessage, ...withoutOldDynamicContext.slice(lastUserIndex)];
+  };
+
   const getProviderItemRole = (item: unknown): string | undefined => {
     if (!item || typeof item !== "object") return undefined;
     const role = (item as { role?: unknown }).role;
@@ -474,6 +514,25 @@ export default function (pi: ExtensionAPI) {
     if (lastUserIndex === -1) return [dynamicItem];
     return [dynamicItem, ...withoutOldDynamicContext.slice(lastUserIndex)];
   };
+
+  // -----------------------------------------------------------------------
+  // Event: context → replace model-bound history before provider serialization
+  // -----------------------------------------------------------------------
+
+  pi.on("context", async (event, ctx) => {
+    const messages = event.messages as AgentMessageLike[];
+    await ensureDomainForMessages(messages, ctx);
+
+    const dynamicContextText = buildDynamicContextText();
+    if (!dynamicContextText) return;
+
+    return {
+      messages: compactAgentMessages(
+        messages,
+        makeAgentContextMessage(dynamicContextText) as AgentMessageLike,
+      ),
+    };
+  });
 
   // -----------------------------------------------------------------------
   // Event: before_provider_request → replace provider-bound history
